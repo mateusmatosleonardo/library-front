@@ -2,6 +2,7 @@
 
 import Loading from './loading'
 import UsersTable from './components/users-table'
+import CreateUserDialog from './components/create-user-dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -10,7 +11,6 @@ import {
 } from '@/components/ui/dialog'
 import { MagnifyingGlassIcon, PlusCircledIcon } from '@radix-ui/react-icons'
 import { useFetchUsers } from '@/hooks/useFetchUsers'
-import CreateUserDialog from '../components/create-user-dialog'
 
 export default function Users() {
   const { users, loading } = useFetchUsers()
