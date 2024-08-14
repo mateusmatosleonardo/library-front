@@ -7,4 +7,8 @@ export default class UsersGatewayHttp implements UsersGateway {
   async getAllUsers() {
     return this.httpClient.get("/users")
   }
+
+  async saveUser(body: any) {
+    return this.httpClient.post("/users", body)
+  }
 }
