@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -12,12 +13,18 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { DialogClose } from '@radix-ui/react-dialog'
+import { useToast } from '@/components/ui/use-toast'
 import {
   formatToCPF,
   formatToPhone,
   isCPF,
   isPhone
 } from 'brazilian-values'
+import AxiosAdapter from '@/infra/http/axios-adapter'
+import UsersGatewayHttp from '@/infra/gateway/users/UsersGatewayHttp'
+import { extractDigits } from '@/utils/extract-digits'
+import { useCreateUserDialogStore } from '@/app/stores/create-user-dialog-store'
+import { AxiosError } from 'axios'
 
 const createUserSchema = z.object({
   name: z.string().min(4, 'Insira um nome!'),
@@ -29,7 +36,7 @@ const createUserSchema = z.object({
     .refine((value) => isCPF(value), {
       message: 'Insira um CPF válido!',
     }),
-  cell: z.string()
+  phone: z.string()
     .min(1, 'Insira um celular!')
     .refine((value) => isPhone(value), {
       message: 'Insira um celular válido!',
@@ -39,14 +46,65 @@ const createUserSchema = z.object({
 type CreateUserShema = z.infer<typeof createUserSchema>
 
 export default function CreateUserDialog() {
+  const [loading, setLoading] = useState(false)
+
+  const { setOpen } = useCreateUserDialogStore()
+
+  const { toast } = useToast()
+
   const { register, handleSubmit, setValue, formState: {
     errors
   } } = useForm<CreateUserShema>({
     resolver: zodResolver(createUserSchema)
   })
 
-  function handleCreateUser(data: CreateUserShema) {
-    console.log(data)
+  async function handleCreateUser(data: CreateUserShema) {
+    setLoading(true)
+
+    const cleanedPhone = extractDigits(data.phone)
+    const cleanedCPF = extractDigits(data.cpf)
+
+    try {
+      const httpClient = new AxiosAdapter()
+      const usersGateway = new UsersGatewayHttp(httpClient)
+      const response = await usersGateway.saveUser({
+        ...data,
+        cpf: cleanedCPF,
+        phone: cleanedPhone
+      })
+      toast({
+        title: "Sucesso",
+        description: "Usuário cadastrado com sucesso.",
+        style: { backgroundColor: '#4CAF50', color: '#fafafa' }
+      })
+      return response
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>
+      console.log(err.response?.data.message)
+      if (
+        err.response?.data &&
+        err.response.data.message === 'Email already exists'
+      ) {
+        toast({
+          title: "E-mail já cadastrado",
+          description: "Esse e-mail já está associado a uma conta.",
+          variant: "destructive"
+        })
+      }
+      if (
+        err.response?.data &&
+        err.response.data.message === 'CPF already exists'
+      ) {
+        toast({
+          title: "CPF já cadastrado",
+          description: "Esse CPF já está associado a uma conta.",
+          variant: "destructive"
+        })
+      }
+    } finally {
+      setLoading(false)
+      setOpen(false)
+    }
   }
 
   function handleOnChangeCPF(e: React.ChangeEvent<HTMLInputElement>) {
@@ -56,7 +114,7 @@ export default function CreateUserDialog() {
 
   function handleOnChangeCell(e: React.ChangeEvent<HTMLInputElement>) {
     const formattedCell = formatToPhone(e.target.value)
-    setValue('cell', formattedCell, { shouldValidate: true })
+    setValue('phone', formattedCell, { shouldValidate: true })
   }
 
   return (
@@ -109,21 +167,21 @@ export default function CreateUserDialog() {
               Celular
             </Label>
             <Input
-              id='cell'
+              id='phone'
               maxLength={16}
-              {...register('cell')}
+              {...register('phone')}
               onChange={handleOnChangeCell}
             />
           </div>
-          {errors.cell &&
+          {errors.phone &&
             <span className='text-sm text-red-500'>
-              {errors.cell.message}
+              {errors.phone.message}
             </span>}
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="ghost">Cancelar</Button>
             </DialogClose>
-            <Button>Salvar</Button>
+            <Button>{loading ? 'Salvando' : 'Salvar'}</Button>
           </DialogFooter>
         </div>
       </form>
