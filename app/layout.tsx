@@ -19,7 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`flex ${inter.className}`}>
-        <SideBar />
+        <div className="flex">
+          <SideBar />
+          <div className="w-[1px] h-full bg-gray-200">
+          </div>
+        </div>
         <Toaster />
         {children}
       </body>
