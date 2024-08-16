@@ -11,9 +11,12 @@ import {
 } from '@/components/ui/dialog'
 import { MagnifyingGlassIcon, PlusCircledIcon } from '@radix-ui/react-icons'
 import { useFetchUsers } from '@/hooks/useFetchUsers'
+import { useCreateUserDialogStore } from '@/app/stores/create-user-dialog-store'
 
 export default function Users() {
   const { users, loading } = useFetchUsers()
+
+  const { open, setOpen } = useCreateUserDialogStore()
 
   return (
     <main className="flex flex-col flex-1 w-full min-h-screen bg-white">
@@ -37,9 +40,9 @@ export default function Users() {
                   Filtrar
                 </Button>
               </div>
-              <Dialog>
+              <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
-                  <Button>
+                  <Button className='bg-blue-primary'>
                     <PlusCircledIcon className="w-5 h-5 mr-2 text-white" />
                     Novo usuário
                   </Button>
