@@ -19,7 +19,7 @@ export default function Users() {
   const { open, setOpen } = useCreateUserDialogStore()
 
   return (
-    <main className="flex flex-col flex-1 w-full min-h-screen bg-white">
+    <main className="flex flex-col flex-1 w-full bg-white">
       {loading ? (
         <div className='flex flex-1 justify-center items-center'>
           <Loading />
@@ -42,7 +42,7 @@ export default function Users() {
               </div>
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
-                  <Button className='bg-blue-primary'>
+                  <Button variant="default">
                     <PlusCircledIcon className="w-5 h-5 mr-2 text-white" />
                     Novo usuário
                   </Button>
