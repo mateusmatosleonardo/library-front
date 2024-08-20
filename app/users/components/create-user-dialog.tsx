@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { useState } from 'react'
+import { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -24,7 +25,6 @@ import AxiosAdapter from '@/infra/http/axios-adapter'
 import UsersGatewayHttp from '@/infra/gateway/users/UsersGatewayHttp'
 import { extractDigits } from '@/utils/extract-digits'
 import { useCreateUserDialogStore } from '@/app/stores/create-user-dialog-store'
-import { AxiosError } from 'axios'
 
 const createUserSchema = z.object({
   name: z.string().min(4, 'Insira um nome!'),
@@ -45,7 +45,11 @@ const createUserSchema = z.object({
 
 type CreateUserShema = z.infer<typeof createUserSchema>
 
-export default function CreateUserDialog() {
+type CreateUserDialogProps = {
+  onCallback: () => Promise<void>
+}
+
+export default function CreateUserDialog(props: CreateUserDialogProps) {
   const [loading, setLoading] = useState(false)
 
   const { setOpen } = useCreateUserDialogStore()
@@ -73,22 +77,22 @@ export default function CreateUserDialog() {
         phone: cleanedPhone
       })
       toast({
-        title: "Sucesso",
-        description: "Usuário cadastrado com sucesso.",
+        title: 'Sucesso',
+        description: 'Usuário cadastrado com sucesso.',
         style: { backgroundColor: '#4CAF50', color: '#fafafa' }
       })
+      await props.onCallback()
       return response
     } catch (error) {
       const err = error as AxiosError<{ message: string }>
-      console.log(err.response?.data.message)
       if (
         err.response?.data &&
         err.response.data.message === 'Email already exists'
       ) {
         toast({
-          title: "E-mail já cadastrado",
-          description: "Esse e-mail já está associado a uma conta.",
-          variant: "destructive"
+          title: 'E-mail já cadastrado',
+          description: 'Esse e-mail já está associado a uma conta.',
+          variant: 'destructive'
         })
       }
       if (
@@ -96,9 +100,9 @@ export default function CreateUserDialog() {
         err.response.data.message === 'CPF already exists'
       ) {
         toast({
-          title: "CPF já cadastrado",
-          description: "Esse CPF já está associado a uma conta.",
-          variant: "destructive"
+          title: 'CPF já cadastrado',
+          description: 'Esse CPF já está associado a uma conta.',
+          variant: 'destructive'
         })
       }
     } finally {
