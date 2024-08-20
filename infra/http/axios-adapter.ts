@@ -11,4 +11,9 @@ export default class AxiosAdapter implements HttpClient {
     const response = await api.post(url, body)
     return response.data
   }
+
+  async delete(url: string): Promise<any> {
+    const response = await api.delete(url)
+    return response.data
+  }
 }
