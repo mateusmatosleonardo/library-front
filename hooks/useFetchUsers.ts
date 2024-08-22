@@ -20,6 +20,20 @@ export const useFetchUsers = () => {
     }
   }
 
+  async function getUserByEmail(email: string) {
+    setLoading(true)
+    try {
+      const httpClient = new AxiosAdapter()
+      const usersGateway = new UsersGatewayHttp(httpClient)
+      const user = await usersGateway.getUserByEmail(email)
+      setUsers(user)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     getUsers()
   }, [])
@@ -27,6 +41,7 @@ export const useFetchUsers = () => {
   return {
     users,
     loading,
-    getUsers
+    getUsers,
+    getUserByEmail
   }
 }
