@@ -35,6 +35,41 @@ const users = [
     email: "helena.costa@example.com",
     cpf: "258.369.147-77",
   },
+  {
+    name: "Gustavo Santos",
+    email: "gustavo.santos@example.com",
+    cpf: "147.258.369-66",
+  },
+  {
+    name: "Helena Costa",
+    email: "helena.costa@example.com",
+    cpf: "258.369.147-77",
+  },
+  {
+    name: "Gustavo Santos",
+    email: "gustavo.santos@example.com",
+    cpf: "147.258.369-66",
+  },
+  {
+    name: "Helena Costa",
+    email: "helena.costa@example.com",
+    cpf: "258.369.147-77",
+  },
+  {
+    name: "Gustavo Santos",
+    email: "gustavo.santos@example.com",
+    cpf: "147.258.369-66",
+  },
+  {
+    name: "Helena Costa",
+    email: "helena.costa@example.com",
+    cpf: "258.369.147-77",
+  },
+  {
+    name: "Gustavo Santos",
+    email: "gustavo.santos@example.com",
+    cpf: "147.258.369-66",
+  },
 ];
 
 export default users;
