@@ -8,6 +8,10 @@ export default class UsersGatewayHttp implements UsersGateway {
     return this.httpClient.get("/users")
   }
 
+  async getUserByEmail(email: string): Promise<any> {
+    return this.httpClient.get(`/users/${email}`)
+  }
+
   async saveUser(body: any) {
     return this.httpClient.post("/users", body)
   }
