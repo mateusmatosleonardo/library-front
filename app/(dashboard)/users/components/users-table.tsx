@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from "react"
+import { AxiosError } from "axios"
 import {
   Table,
   TableBody,
@@ -24,13 +26,51 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/components/ui/use-toast"
 import { formatToCPF, formatToPhone } from "brazilian-values"
+import AxiosAdapter from "@/infra/http/axios-adapter"
+import UsersGatewayHttp from "@/infra/gateway/users/UsersGatewayHttp"
 
 type UsersTableProps = {
   data?: any[]
+  onCallback: () => Promise<void>
 }
 
-export default function UsersTable({ data }: UsersTableProps) {
+export default function UsersTable(props: UsersTableProps) {
+  const [loading, setLoading] = useState(false)
+
+  const { toast } = useToast()
+
+  async function handleDeleteUser(id: string) {
+    setLoading(true)
+    try {
+      const httpClient = new AxiosAdapter()
+      const usersGateway = new UsersGatewayHttp(httpClient)
+      const response = await usersGateway.deleteUser(id)
+      toast({
+        title: "Sucesso",
+        description: "Usuário excluído com sucesso.",
+        style: { backgroundColor: '#4CAF50', color: '#fafafa' }
+      })
+      await props.onCallback()
+      return response
+    } catch (error) {
+      const err = error as AxiosError
+      if (
+        err.response?.status &&
+        err.response.status === 404
+      ) {
+        toast({
+          title: "O usuário não existe",
+          description: "Não existe um usuário com essa identificação.",
+          variant: "destructive"
+        })
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <Table className="bg-white rounded-md">
       <TableHeader className="border-gray-200">
@@ -43,7 +83,7 @@ export default function UsersTable({ data }: UsersTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody className="text-slate-900">
-        {data?.map((user, index) => (
+        {props.data?.map((user, index) => (
           <TableRow key={index} className="border-0">
             <TableCell>
               <Avatar>
@@ -63,7 +103,7 @@ export default function UsersTable({ data }: UsersTableProps) {
               <div className="flex gap-x-2">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>
+                    <Button variant="default">
                       Editar
                     </Button>
                   </DialogTrigger>
@@ -89,8 +129,11 @@ export default function UsersTable({ data }: UsersTableProps) {
                           Cancelar
                         </Button>
                       </DialogClose>
-                      <Button variant="destructive">
-                        Excluir
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        {loading ? 'Excluindo' : 'Excluir'}
                       </Button>
                     </DialogFooter>
                   </DialogContent>

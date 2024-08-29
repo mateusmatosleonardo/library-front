@@ -14,7 +14,7 @@ import { useFetchUsers } from '@/hooks/useFetchUsers'
 import { useCreateUserDialogStore } from '@/app/stores/create-user-dialog-store'
 
 export default function Users() {
-  const { users, loading } = useFetchUsers()
+  const { users, loading, getUsers, getUserByEmail } = useFetchUsers()
 
   const { open, setOpen } = useCreateUserDialogStore()
 
@@ -32,7 +32,7 @@ export default function Users() {
             </h1>
             <div className="flex gap-2 mt-4 justify-between items-center">
               <div className='flex gap-x-4'>
-                <div className="flex relative">
+                <div className="flex relative w-72">
                   <MagnifyingGlassIcon className="absolute top-2 left-1.5 w-5 h-5 text-zinc-800" />
                   <Input className='shadow-none px-7' />
                 </div>
@@ -47,13 +47,13 @@ export default function Users() {
                     Novo usuário
                   </Button>
                 </DialogTrigger>
-                <CreateUserDialog />
+                <CreateUserDialog onCallback={getUsers} />
               </Dialog>
             </div>
           </div>
           <div className="flex flex-col gap-y-6 px-12">
             <div className="flex border border-gray-200 rounded-md overflow-y-auto">
-              <UsersTable data={users} />
+              <UsersTable data={users} onCallback={getUsers} />
             </div>
           </div>
         </>
